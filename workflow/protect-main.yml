@@ -1,0 +1,20 @@
+name: Protect Main Branch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  alert-direct-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack alert
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_ALERTS_WEBHOOK }}
+        run: |
+          curl -X POST "$SLACK_WEBHOOK" \
+          -H 'Content-type: application/json' \
+          --data '{
+            "text": "🚨 *Direct push to main detected*\nRepo: `${{ github.repository }}`\nCommit: `${{ github.sha }}`\nPushed by: `${{ github.actor }}`\nMessage: `${{ github.event.head_commit.message }}`\nThis bypassed the PR review process. Investigate immediately."
+          }'
